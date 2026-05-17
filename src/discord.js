@@ -14,16 +14,7 @@ function getChannel(id) {
   return channels.get(id);
 }
 
-import http from 'http';
-
-const server = http.createServer((_, res) => {
-  res.writeHead(200);
-  res.end('ok');
-});
-
 export function setupDiscordHandlers(client) {
-  server.listen(process.env.PORT || 10000);
-
   client.once('clientReady', () => {
     console.log(`Logged in as ${client.user.tag}`);
   });
