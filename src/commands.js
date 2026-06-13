@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { ChannelType, SlashCommandBuilder } from 'discord.js';
 
 export const commands = [
   new SlashCommandBuilder()
@@ -24,6 +24,16 @@ export const commands = [
     .addStringOption(opt =>
       opt.setName('name')
         .setDescription('Model name (e.g. gpt-4o, claude-3-opus-20240229)')
+        .setRequired(true)
+    ),
+
+  new SlashCommandBuilder()
+    .setName('setup')
+    .setDescription('Set the channel where the bot will auto-respond (no @mention needed)')
+    .addChannelOption(opt =>
+      opt.setName('channel')
+        .setDescription('The text channel for the bot to live in')
+        .addChannelTypes(ChannelType.GuildText)
         .setRequired(true)
     ),
 ];
