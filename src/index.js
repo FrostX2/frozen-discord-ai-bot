@@ -1,7 +1,8 @@
 import express from 'express';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, REST, Routes } from 'discord.js';
 import { config } from './config.js';
 import { setupDiscordHandlers } from './discord.js';
+import { commands } from './commands.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,6 +21,20 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
+});
+
+client.once('ready', async () => {
+  console.log(`Logged in as ${client.user.tag}`);
+  try {
+    const rest = new REST({ version: '10' }).setToken(config.discord.token);
+    await rest.put(
+      Routes.applicationCommands(config.discord.clientId),
+      { body: commands.map(c => c.toJSON()) },
+    );
+    console.log('Slash commands deployed.');
+  } catch (err) {
+    console.error('Failed to deploy slash commands:', err);
+  }
 });
 
 setupDiscordHandlers(client);

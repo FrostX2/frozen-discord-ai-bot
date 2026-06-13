@@ -39,8 +39,7 @@ function getChannel(id) {
 }
 
 export function setupDiscordHandlers(client) {
-  client.once('clientReady', () => {
-    console.log(`Logged in as ${client.user.tag}`);
+  client.once('ready', () => {
     loadGuildConfig();
   });
 
@@ -88,6 +87,22 @@ export function setupDiscordHandlers(client) {
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (!message.channel.isTextBased?.()) return;
+
+    const prefix = '!';
+    const hasPrefix = message.content.startsWith(prefix);
+
+    if (hasPrefix) {
+      const args = message.content.slice(prefix.length).trim().split(/\s+/);
+      const cmd = args.shift()?.toLowerCase();
+      if (cmd === 'ping') {
+        return message.reply(`Pong! Latency: ${client.ws.ping}ms`);
+      }
+      if (cmd === 'clear') {
+        getChannel(message.channelId).messages = [];
+        return message.reply('Conversation history cleared.');
+      }
+      return;
+    }
 
     const aiMentioned = message.mentions.users.has(client.user.id);
 
