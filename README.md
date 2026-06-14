@@ -1,0 +1,56 @@
+﻿# FuriAi — NotFrost
+## It was the Ai bot
+
+![LOC](https://tokei.rs/b1/github/FrostX2/Frozen-discord-ai-bot?category=code)
+
+![GitHub top language](https://img.shields.io/github/languages/top/FrostX2/Frozen-discord-ai-bot?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/FrostX2/Frozen-discord-ai-bot?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/FrostX2/Frozen-discord-ai-bot?style=for-the-badge)
+[![Visits Badge](https://badges.pufler.dev/visits/FrostX2/Frozen-discord-ai-bot?style=for-the-badge)](https://badges.pufler.dev)
+
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=FrostX2&repo=Frozen-discord-ai-bot&theme=dracula)](https://github.com/FrostX2/Frozen-discord-ai-bot)
+
+### Requirement
+
+Before you begin, ensure you have the following installed:
+
+- [**Git**](https://git-scm.com/)
+- [**NodeJS**](https://nodejs.org/)
+- Basic knowledge of command line operations
+
+### Optional
+
+- Host website like [**Render**](https://render.com/)
+
+### Installation
+
+1. **Clone the repository**
+
+```console
+git clone https://github.com/FrostX2/Frozen-discord-ai-bot.git
+```
+
+2. **Change the .env file**
+
+```console
+cp .env.example .env
+```
+
+ > [!IMPORTANT]
+  > Make sure to edit `CLIENT_ID=` ,`DISCORD_TOKEN=` ,`AI_BASE_URL=`,`AI_API_KEY=` ,and `AI_MODEL=`in `.env` to your application in [**Discord Developer Portal**](https://discord.com/developers/applications) and your Ai model.
+
+3. **start the server**
+
+```console
+node src/index.js
+```
+> [!TIP]
+> Join our [Discord server](https://discord.gg/JH9e4vaFGd) if you have any questions or just want to chill with us!
+
+## Contributing
+
+If you want to contribute to the project, feel free to fork the repository and give credit to this repository. We are open to any suggestions and improvements.
+
+## Disclaimer
+
+This reposity based it own repository. We made and developed by ourself
