@@ -53,4 +53,4 @@ If you want to contribute to the project, feel free to fork the repository and g
 
 ## Disclaimer
 
-This reposity based it own repository. We made and developed by ourself
+This reposity based on it own repository. We made and developed by ourself
