@@ -1,46 +1,42 @@
 import { PermissionsBitField } from 'discord.js';
-import fs from 'fs';
-import path from 'path';
 import { config } from './config.js';
-import { askAI } from './ai.js';
+import { askAI, getAvailableModels } from './ai.js';
+import { initDB, getGuildConfig, setGuildConfig, getChannelConfig, setChannelConfig } from './db.js';
 
-const CONFIG_PATH = path.resolve('guild-config.json');
-let guildConfig = {};
-
-function loadGuildConfig() {
-  try {
-    if (fs.existsSync(CONFIG_PATH)) {
-      guildConfig = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-    }
-  } catch (err) {
-    console.error('Failed to load guild config:', err);
-  }
-}
-
-function saveGuildConfig() {
-  try {
-    fs.writeFileSync(CONFIG_PATH, JSON.stringify(guildConfig, null, 2));
-  } catch (err) {
-    console.error('Failed to save guild config:', err);
-  }
-}
+initDB();
 
 const channels = new Map();
 
 function getChannel(id) {
   if (!channels.has(id)) {
+    const saved = getChannelConfig(id);
     channels.set(id, {
-      systemPrompt: config.ai.systemPrompt,
-      model: config.ai.model,
+      systemPrompt: saved?.system_prompt || config.ai.systemPrompt,
+      model: saved?.model || config.ai.model,
       messages: [],
     });
   }
   return channels.get(id);
 }
 
+function persistChannel(id) {
+  const ch = channels.get(id);
+  if (ch) {
+    setChannelConfig(id, { systemPrompt: ch.systemPrompt, model: ch.model });
+  }
+}
+
+function getAllProviderModels() {
+  const models = [config.ai.model];
+  for (const p of config.ai.providers) {
+    if (p.models) models.push(...p.models);
+  }
+  return [...new Set(models)];
+}
+
 export function setupDiscordHandlers(client) {
   client.once('ready', () => {
-    loadGuildConfig();
+    console.log(`Logged in as ${client.user.tag}`);
   });
 
   client.on('interactionCreate', async (interaction) => {
@@ -61,12 +57,20 @@ export function setupDiscordHandlers(client) {
       case 'system':
         channel.systemPrompt = interaction.options.getString('prompt');
         channel.messages = [];
+        persistChannel(interaction.channelId);
         await interaction.reply('System prompt updated and history cleared.');
         break;
 
-      case 'model':
-        channel.model = interaction.options.getString('name');
+      case 'model': {
+        const model = interaction.options.getString('name');
+        channel.model = model;
+        persistChannel(interaction.channelId);
         await interaction.reply(`Model changed to \`${channel.model}\``);
+        break;
+      }
+
+      case 'models':
+        await interaction.reply(`Available models: ${getAllProviderModels().join(', ')}`);
         break;
 
       case 'setup':
@@ -74,12 +78,8 @@ export function setupDiscordHandlers(client) {
           return interaction.reply({ content: 'You need the Manage Channels permission to use this command.', ephemeral: true });
         }
         const targetChannel = interaction.options.getChannel('channel');
-        if (!guildConfig[interaction.guildId]) {
-          guildConfig[interaction.guildId] = {};
-        }
-        guildConfig[interaction.guildId].channelId = targetChannel.id;
-        saveGuildConfig();
-        await interaction.reply(`✅ Bot will now automatically respond in ${targetChannel} — no need to @mention me!`);
+        setGuildConfig(interaction.guildId, targetChannel.id);
+        await interaction.reply(`Bot will now automatically respond in ${targetChannel} — no need to @mention me!`);
         break;
     }
   });
@@ -88,29 +88,14 @@ export function setupDiscordHandlers(client) {
     if (message.author.bot) return;
     if (!message.channel.isTextBased?.()) return;
 
-    const prefix = '!';
-    const hasPrefix = message.content.startsWith(prefix);
-
-    if (hasPrefix) {
-      const args = message.content.slice(prefix.length).trim().split(/\s+/);
-      const cmd = args.shift()?.toLowerCase();
-      if (cmd === 'ping') {
-        return message.reply(`Pong! Latency: ${client.ws.ping}ms`);
-      }
-      if (cmd === 'clear') {
-        getChannel(message.channelId).messages = [];
-        return message.reply('Conversation history cleared.');
-      }
-      return;
-    }
-
     const aiMentioned = message.mentions.users.has(client.user.id);
 
     const replyToBot = message.reference?.messageId
       ? (await message.channel.messages.fetch(message.reference.messageId).catch(() => null))?.author?.id === client.user.id
       : false;
 
-    const isConfiguredChannel = message.guildId && guildConfig[message.guildId]?.channelId === message.channelId;
+    const guildCfg = message.guildId ? getGuildConfig(message.guildId) : null;
+    const isConfiguredChannel = guildCfg?.channelId === message.channelId;
 
     if (!aiMentioned && !replyToBot && !isConfiguredChannel) return;
 

@@ -1,14 +1,24 @@
 import OpenAI from 'openai';
 import { config } from './config.js';
 
-const openai = new OpenAI({
-  baseURL: config.ai.baseURL,
-  apiKey: config.ai.apiKey,
-});
+function getProviderForModel(model) {
+  for (const p of config.ai.providers) {
+    if (p.models?.includes(model)) return p;
+  }
+  return null;
+}
 
 export async function askAI(messages, modelOverride) {
-  const response = await openai.chat.completions.create({
-    model: modelOverride || config.ai.model,
+  const model = modelOverride || config.ai.model;
+  const provider = getProviderForModel(model);
+
+  const client = new OpenAI({
+    baseURL: provider?.baseURL || config.ai.baseURL,
+    apiKey: provider?.apiKey || config.ai.apiKey,
+  });
+
+  const response = await client.chat.completions.create({
+    model,
     messages,
     temperature: config.ai.temperature,
     max_tokens: config.ai.maxTokens,
@@ -19,4 +29,12 @@ export async function askAI(messages, modelOverride) {
     throw new Error('AI returned no content');
   }
   return choice.message.content;
+}
+
+export function getAvailableModels() {
+  const models = [config.ai.model];
+  for (const p of config.ai.providers) {
+    if (p.models) models.push(...p.models);
+  }
+  return [...new Set(models)];
 }

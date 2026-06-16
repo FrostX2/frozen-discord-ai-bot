@@ -6,6 +6,17 @@ function required(key) {
   return value;
 }
 
+function parseProviders() {
+  const raw = process.env.AI_PROVIDERS;
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    console.error('Invalid AI_PROVIDERS JSON, ignoring');
+    return [];
+  }
+}
+
 export const config = {
   discord: {
     token: required('DISCORD_TOKEN'),
@@ -18,5 +29,6 @@ export const config = {
     temperature: parseFloat(process.env.AI_TEMPERATURE) || 0.7,
     maxTokens: parseInt(process.env.AI_MAX_TOKENS) || 1024,
     systemPrompt: process.env.AI_SYSTEM_PROMPT || 'You are a helpful assistant in a Discord server. Be concise, friendly, and engaging.',
+    providers: parseProviders(),
   },
 };

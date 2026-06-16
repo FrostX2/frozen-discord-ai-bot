@@ -28,6 +28,10 @@ export const commands = [
     ),
 
   new SlashCommandBuilder()
+    .setName('models')
+    .setDescription('List all available AI models from all providers'),
+
+  new SlashCommandBuilder()
     .setName('setup')
     .setDescription('Set the channel where the bot will auto-respond (no @mention needed)')
     .addChannelOption(opt =>
