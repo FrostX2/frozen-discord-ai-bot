@@ -37,6 +37,10 @@ function getAllProviderModels() {
 export function setupDiscordHandlers(client) {
   client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
+    client.user.setPresence({
+      activities: [{ name: 'Talking to FuriAi', type: 0 }],
+      status: 'online',
+    });
   });
 
   client.on('interactionCreate', async (interaction) => {
