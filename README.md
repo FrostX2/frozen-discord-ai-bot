@@ -76,6 +76,6 @@ Fork it, break it, fix it, share it — just **give credit** where it's frozen. 
 
 ## 📜 Disclaimer
 
-This repo was forged in the eternal winter by **FrostX2**. Built with ❤️ (and a lot of coffee).
+This repo was forged in the eternal winter by **NotFrost**. Built with ❤️ (and a lot of coffee).
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=120&section=footer"/>
