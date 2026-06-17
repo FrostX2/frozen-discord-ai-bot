@@ -37,6 +37,10 @@ client.once('ready', async () => {
   }
 });
 
-setupDiscordHandlers(client);
-
-client.login(config.discord.token);
+client.login(config.discord.token).catch(err => {
+  console.error('LOGIN ERROR:', err.message);
+});
+// Add this after app.listen(...)
+console.log('Env check:', ['DISCORD_TOKEN','CLIENT_ID','AI_BASE_URL','AI_API_KEY']
+  .map(k => `${k}=${process.env[k] ? '✓' : '✗ MISSING'}`)
+  .join(', '));
