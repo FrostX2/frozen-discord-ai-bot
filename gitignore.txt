@@ -1,0 +1,5 @@
+.env
+aibot.db
+aibot.db-wal
+aibot.db-shm
+node_modules/
