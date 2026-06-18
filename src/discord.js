@@ -1,4 +1,4 @@
-import { PermissionsBitField } from 'discord.js';
+import { ChannelType, PermissionsBitField } from 'discord.js';
 import { config } from './config.js';
 import { askAI, getAvailableModels } from './ai.js';
 import { initDB, getGuildConfig, setGuildConfig, getChannelConfig, setChannelConfig } from './db.js';
@@ -78,10 +78,23 @@ export function setupDiscordHandlers(client) {
         break;
 
       case 'setup':
-        if (!interaction.memberPermissions.has(PermissionsBitField.Flags.ManageChannels)) {
+        if (!interaction.guildId) {
+          return interaction.reply({ content: 'The /setup command can only be used in a server.', ephemeral: true });
+        }
+
+        if (!interaction.memberPermissions?.has(PermissionsBitField.Flags.ManageChannels)) {
           return interaction.reply({ content: 'You need the Manage Channels permission to use this command.', ephemeral: true });
         }
+
         const targetChannel = interaction.options.getChannel('channel');
+        if (!targetChannel) {
+          return interaction.reply({ content: 'Please choose a valid channel.', ephemeral: true });
+        }
+
+        if (![ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.PublicThread, ChannelType.PrivateThread].includes(targetChannel.type)) {
+          return interaction.reply({ content: 'Please select a text-based channel or thread.', ephemeral: true });
+        }
+
         setGuildConfig(interaction.guildId, targetChannel.id);
         await interaction.reply(`Bot will now automatically respond in ${targetChannel} — no need to @mention me!`);
         break;

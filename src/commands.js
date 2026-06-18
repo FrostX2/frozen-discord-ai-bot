@@ -37,7 +37,12 @@ export const commands = [
     .addChannelOption(opt =>
       opt.setName('channel')
         .setDescription('The text channel for the bot to live in')
-        .addChannelTypes(ChannelType.GuildText)
+        .addChannelTypes(
+          ChannelType.GuildText,
+          ChannelType.GuildAnnouncement,
+          ChannelType.PublicThread,
+          ChannelType.PrivateThread,
+        )
         .setRequired(true)
     ),
 ];

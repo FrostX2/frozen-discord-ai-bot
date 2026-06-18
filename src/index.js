@@ -23,6 +23,8 @@ const client = new Client({
   ],
 });
 
+setupDiscordHandlers(client);
+
 client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}`);
   try {
